@@ -10,6 +10,9 @@ from discord import app_commands
 from commands.chat import setup as chat_setup
 from commands.custom_imagine import setup as imagine_setup
 from collections import deque
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Setup the Discord client
 intents = discord.Intents.all()
