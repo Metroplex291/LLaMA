@@ -23,6 +23,8 @@ MAX_MESSAGE_HISTORY = 15
 
 client = ShardClient("shard-jsW4ZXRuuKRyfu27opINzywriKiQLq")
 
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+
 active_channels = set()
 
 current_model = 'llama_2_7b'
@@ -156,4 +158,4 @@ async def on_ready():
     await bot.tree.sync()
 
 # Enter your Discord bot token here
-bot.run('')
+bot.run(DISCORD_TOKEN)
