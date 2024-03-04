@@ -22,8 +22,6 @@ bot = commands.Bot(command_prefix='/', intents=intents , heartbeat_timeout=60)
 
 message_history = {}
 
-MAX_MESSAGE_HISTORY = 15
-
 client = ShardClient("shard-jsW4ZXRuuKRyfu27opINzywriKiQLq")
 
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
@@ -128,13 +126,13 @@ async def on_message(message):
         async with message.channel.typing():
             try:
             # Use the global model variable here
-                   cleaned_message = message.content.lower().replace('llemy', '').strip()
                    user_id = message.author.id
-                   if user_id not in message_history:
-                        message_history[user_id] = deque(maxlen=MAX_MESSAGE_HISTORY)
-                   message_history[user_id].append(cleaned_message)
-                   recent_messages = list(message_history.get(user_id, []))
-                   payload = [{'role': 'user', 'content': recent_messages[-1]},*({'role': 'user', 'content': msg} for msg in recent_messages[:-1]),{"role": 'system', 'content': current_personality}]
+                   history = message_history.get(user_id, [])
+                   history.append(message.content.lower())
+                   cleaned_message = message.content.lower().replace('llemy', '').strip()
+                   payload = [{"role": "system", "content": }] + \
+                             [{"role": "assistant", "content": content} for content in history] + \
+                             [{"role": "user", "content": cleaned_message}] 
                    data = {'model': current_text_model,
                            'messages': payload,
                            'stream': False                    
@@ -142,6 +140,7 @@ async def on_message(message):
                    headers = {'api-key': 'shard-jsW4ZXRuuKRyfu27opINzywriKiQLq', 'Content-Type': 'application/json'}
                    r = requests.post(url='https://shard-ai.xyz/v1/chat/completions', headers=headers, data=json.dumps(data))
                    text = r.json()['choices'][0]['message']['content']
+                   message_history[user_id] = history
                    embed = discord.Embed(title=current_text_model.upper(), description=text, color=0x00ff00)
                    await message.reply(embed=embed)
             except shardai.exceptions.APIError as e:
